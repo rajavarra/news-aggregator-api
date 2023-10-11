@@ -4,7 +4,7 @@ const authenticateUser = (req, res, next) => {
   if (!token) {
     return res.status(401).send({ error: 'Please provide Auth token' });
   }
-  jwt.verify(token, 'raja1235', (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
     if (err) {
       return res.status(401).send({ error: 'Invalid token' });
     }

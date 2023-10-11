@@ -1,4 +1,5 @@
 require('module-alias/register');
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const userRouter = require('./routes/v1/userRoutes');

@@ -39,6 +39,24 @@ const userSignInSchema = Joi.object({
     }),
 });
 
+const preferencesSchema = Joi.object({
+  preferences: Joi.array().required().messages({
+    'any.required': 'preferences is required and should be an array',
+  }),
+});
+
+const preferencesValidation = (req, res, next) => {
+  const { preferences } = req.body;
+
+  const { error } = preferencesSchema.validate({
+    preferences,
+  });
+  if (error) {
+    const errorMessage = error.details.map((d) => d.message).join(', ');
+    res.status(400).send(errorMessage);
+    next();
+  }
+};
 const userSignUpValidation = (req, res, next) => {
   const { fullname, email, password } = req.body;
 
@@ -73,4 +91,5 @@ const userSignInValidation = (req, res, next) => {
 module.exports = {
   userSignUpValidation,
   userSignInValidation,
+  preferencesValidation,
 };

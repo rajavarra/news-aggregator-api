@@ -28,7 +28,7 @@ const userSignIn = async (userCredentials) => {
   const match = await bcrypt.compare(password, users[findUserIndex].password);
 
   if (match) {
-    const token = jwt.sign({ email }, 'raja1235');
+    const token = jwt.sign({ email }, process.env.JWT_SECRET_KEY);
     return token;
   } else {
     const error = new Error();

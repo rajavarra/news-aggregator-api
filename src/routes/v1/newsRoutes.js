@@ -1,14 +1,17 @@
 const express = require('express');
 const { authenticateUser } = require('../../middlewares/authentication');
+// const { preferencesValidation } = require('../../middlewares/errorHandling');
 const newsController = require('../../controllers/newsController');
-// const {
-//   userSignUpValidation,
-//   userSignInValidation,
-// } = require('../../middlewares/errorHandling');
+
 const newsRouter = express.Router();
 
 newsRouter.get('/', authenticateUser, newsController.getAllNews);
-newsRouter.get('/preferences', authenticateUser, newsController.getPreferences);
+newsRouter.get(
+  '/preferences',
+  authenticateUser,
+  // eslint-disable-next-line comma-dangle
+  newsController.getPreferences
+);
 newsRouter.put(
   '/preferences',
   authenticateUser,

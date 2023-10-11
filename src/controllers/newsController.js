@@ -1,7 +1,14 @@
 const newsService = require('../services/newsService');
-const getAllNews = (req, res) => {
-  newsService.getAllNews();
-  res.send('all news');
+const getAllNews = async (req, res) => {
+  try {
+    const { user } = req;
+    const news = await newsService.getAllNews(user);
+    res.status(200).send(news);
+  } catch (error) {
+    res
+      .status(error?.status || 500)
+      .send(error?.message || 'Internal Server Error.');
+  }
 };
 
 const getPreferences = (req, res) => {
@@ -23,7 +30,7 @@ const modifyPreferences = (req, res) => {
       // eslint-disable-next-line comma-dangle
       preferances
     );
-    res.send(updatedPreferances);
+    res.status(200).send(updatedPreferances);
   } catch (error) {
     res
       .status(error?.status || 500)
