@@ -24,7 +24,7 @@ const getPreferences = (reqUser) => {
 };
 const modifyPreferences = (reqUser, userPreferences) => {
   const user = userService.users.find((user) => user.email === reqUser.email);
-  user.preferences = [...user.preferences, ...userPreferences.preferences];
+  user.preferences = [...userPreferences.preferences];
   return user.preferences;
 };
 

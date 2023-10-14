@@ -1,18 +1,17 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+const AppError = require('../utils/AppError');
 const users = [];
 
 const userSignUp = (newUser) => {
   const isUserExists =
     users.findIndex((user) => user.email === newUser.email) > -1;
-
-  if (isUserExists) {
-    const error = new Error();
-    error.message = `User with email ${newUser.email} already exists`;
-    error.status = 400;
-    throw error;
+  if (!isUserExists) {
+    users.push(newUser);
+    return;
   }
-  users.push(newUser);
+  throw new AppError(`User with email ${newUser.email} already exists`, 400);
 };
 
 const userSignIn = async (userCredentials) => {
@@ -20,22 +19,16 @@ const userSignIn = async (userCredentials) => {
   const findUserIndex = users.findIndex((user) => user.email === email);
 
   if (findUserIndex === -1) {
-    const error = new Error(`User with email ${email} does not exist`);
-    error.status = 400;
-    throw error;
+    throw new AppError(`User with email ${email} does not exist`, 400);
   }
 
   const match = await bcrypt.compare(password, users[findUserIndex].password);
 
-  if (match) {
-    const token = jwt.sign({ email }, process.env.JWT_SECRET_KEY);
-    return token;
-  } else {
-    const error = new Error();
-    error.message = 'Invalid Password!';
-    error.status = 400;
-    throw error;
+  if (!match) {
+    throw new AppError('Invalid Password!', 400);
   }
+  const token = jwt.sign({ email }, process.env.JWT_SECRET_KEY);
+  return token;
 };
 
 module.exports = {

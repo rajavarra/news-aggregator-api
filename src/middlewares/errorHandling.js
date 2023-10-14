@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const AppError = require('../utils/AppError');
 
 const userSignUpSchema = Joi.object({
   fullname: Joi.string().min(3).max(30),
@@ -53,9 +54,9 @@ const preferencesValidation = (req, res, next) => {
   });
   if (error) {
     const errorMessage = error.details.map((d) => d.message).join(', ');
-    res.status(400).send(errorMessage);
-    next();
+    return res.status(400).send({ error: errorMessage });
   }
+  next();
 };
 const userSignUpValidation = (req, res, next) => {
   const { fullname, email, password } = req.body;
@@ -67,8 +68,7 @@ const userSignUpValidation = (req, res, next) => {
   });
   if (error) {
     const errorMessage = error.details.map((d) => d.message).join(', ');
-    res.status(400).send(errorMessage);
-    next();
+    return res.status(400).send({ error: errorMessage });
   }
   next();
 };
@@ -82,14 +82,21 @@ const userSignInValidation = (req, res, next) => {
   });
   if (error) {
     const errorMessage = error.details.map((d) => d.message).join(', ');
-    res.status(400).send(errorMessage);
-    next();
+    return res.status(400).send({ error: errorMessage });
   }
   next();
+};
+
+const errorHandler = (error, req, res, next) => {
+  if (error instanceof AppError) {
+    return res.status(error.httpStatusCode).send({ error: error.message });
+  }
+  return res.status(500).send({ error: 'Internal Server Error' });
 };
 
 module.exports = {
   userSignUpValidation,
   userSignInValidation,
   preferencesValidation,
+  errorHandler,
 };
