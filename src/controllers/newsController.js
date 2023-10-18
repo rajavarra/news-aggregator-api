@@ -1,40 +1,51 @@
 const newsService = require('../services/newsService');
-const getAllNews = async (req, res) => {
+
+const redisClient = require('../cacheManager');
+const getAllNews = async (req, res, next) => {
   try {
     const { user } = req;
-    const news = await newsService.getAllNews(user);
-    res.status(200).send(news);
+    const news = await redisClient.GET('news-list');
+
+    if (!news) {
+      const dataFormApi = await newsService.getAllNews(user);
+      await redisClient.SET(
+        'news-list',
+        // eslint-disable-next-line comma-dangle
+        JSON.stringify(dataFormApi),
+        {
+          EX: 180,
+          // NX: true,
+          // eslint-disable-next-line comma-dangle
+        }
+      );
+      return res.status(200).send({ fromCache: false, data: dataFormApi });
+    }
+    res.status(200).send({ fromCache: true, data: JSON.parse(news) });
   } catch (error) {
-    res
-      .status(error?.status || 500)
-      .send(error?.message || 'Internal Server Error.');
+    next(error);
   }
 };
 
-const getPreferences = (req, res) => {
+const getPreferences = (req, res, next) => {
   try {
-    const preferances = newsService.getPreferences(req.user);
-    res.status(200).send(preferances);
+    const preferences = newsService.getPreferences(req.user);
+    res.status(200).send(preferences);
   } catch (error) {
-    res
-      .status(error?.status || 500)
-      .send(error?.message || 'Internal Server Error.');
+    next(error);
   }
 };
 
-const modifyPreferences = (req, res) => {
-  const preferances = req.body;
+const modifyPreferences = (req, res, next) => {
+  const preferences = req.body;
   try {
-    const updatedPreferances = newsService.modifyPreferences(
+    const updatedPreferences = newsService.modifyPreferences(
       req.user,
       // eslint-disable-next-line comma-dangle
-      preferances
+      preferences
     );
-    res.status(200).send(updatedPreferances);
+    res.status(200).send(updatedPreferences);
   } catch (error) {
-    res
-      .status(error?.status || 500)
-      .send(error?.message || 'Internal Server Error.');
+    next(error);
   }
 };
 

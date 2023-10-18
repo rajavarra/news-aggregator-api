@@ -6,11 +6,12 @@ const {
 const userService = require('../services/userService');
 
 const signUp = (req, res, next) => {
-  const { fullname, email, password } = req.body;
+  const { firstname, lastname, email, password } = req.body;
 
   const newUser = {
     id: uuid(),
-    fullname,
+    firstname,
+    lastname,
     email: email.toLowerCase(),
     password: bcrypt.hashSync(password, salt),
     preferences: [],
