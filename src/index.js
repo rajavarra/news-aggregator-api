@@ -9,7 +9,6 @@ const bodyParser = require('body-parser');
 
 const userRouter = require('./routes/v1/userRoutes');
 const newsRouter = require('./routes/v1/newsRoutes');
-const AppError = require('./utils/AppError');
 const { errorHandler } = require('./middlewares/errorHandling');
 
 const PORT = process.env.PORT || port;
@@ -26,10 +25,6 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/news', newsRouter);
-
-app.all('*', (req, res, next) => {
-  throw new AppError(`Can't find ${req.originalUrl} on the server!`, 404);
-});
 
 app.use(errorHandler);
 
