@@ -1,20 +1,22 @@
 const userService = require('../services/userService');
 const axios = require('axios');
+const AppError = require('../utils/AppError');
+
 const getAllNews = async (reqUser) => {
   const user = userService.users.find((user) => user.email === reqUser.email);
   const preferences = user.preferences.join(' OR ');
-
+  console.log('API Called for data');
   const response = await axios.get(
-    // eslint-disable-next-line comma-dangle
-    `https://newsapi.org/v2/everything?q=${preferences}&apiKey=${process.env.OPEN_APT_KEY}`
+    `https://newsapi.org/v2/everything?q=${preferences}&apiKey=${process.env.OPEN_APT_KEY}&language=en&searchIn=title`
   );
+
   if (response.status !== 200) {
-    const error = new Error();
-    error.message =
-      'Something went wrong while fething news from external api!';
-    error.status = response.status;
-    throw error;
+    throw new AppError(
+      'Something went wrong while fetching news from external api!',
+      response.status
+    );
   }
+  // console.log('API Called for data');
   return response.data.articles;
 };
 const getPreferences = (reqUser) => {
